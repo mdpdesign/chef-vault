@@ -26,16 +26,22 @@ class Chef
         :long => "--clean-unknown-clients",
         :description => "Remove unknown clients during refresh"
 
+      option :force_reencryption,
+        :long => "--force-reencryption",
+        :description => "Force reencrypt symetrical key for all clients/admins"
+
       def run
         vault = @name_args[0]
         item = @name_args[1]
         clean = config[:clean_unknown_clients]
+        force_reencryption = config[:force_reencryption]
 
         set_mode(config[:vault_mode])
 
         if vault && item
           begin
             vault_item = ChefVault::Item.load(vault, item)
+            vault_item.force_reencryption = force_reencryption
             vault_item.refresh(clean)
           rescue ChefVault::Exceptions::KeysNotFound,
                  ChefVault::Exceptions::ItemNotFound
